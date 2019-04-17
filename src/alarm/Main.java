@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Formatter;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -96,14 +97,15 @@ public class Main {
 		return rst;
 	}
 
-	public static void sendTelegram(String str) throws Exception {
+	public static void sendTelegram(StringBuffer sb) throws Exception {
 		String chat_id = "836717531";
 		String token = "721797475:AAGoUdjQ7wmie6rGUcgYsjCa3rGfXy8W-Ac";
 		String url_str = "https://api.telegram.org/bot";
-		String text = str;
-//		String temp = "";
-
+		String text = "";
+		StringBuffer temp = sb;
+		
 		try {
+			text = temp.toString();
 			text = URLEncoder.encode(text, "UTF-8");
 			URL url = new URL(url_str + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text);
 
@@ -148,21 +150,22 @@ public class Main {
 		JSONObject json_dust = null;
 		JSONObject json_rain = null;
 
-		String rst_info = "";
-		String rst_action = "";
-		String rain_Percent = "";
+		String rain_percent = "";
 		String pm10_grade = "";
 		String pm25_grade = "";
 		String station_name = "";
 		int mid = 0;
 				
 		CurrentDate cd = new CurrentDate();
+		StringBuffer sb = new StringBuffer();
+		Formatter f= new Formatter(sb); 
+		
 		cd.getDate();
 
 		json_rain = getWeather(cd.getYmd());
 		json_dust = getDust(cd.getYmd());
 		
-		rain_Percent = (json_rain.get("fcstValue")).toString();
+		rain_percent = (json_rain.get("fcstValue")).toString();
 		
 		pm10_grade = (String) json_dust.get("pm10Grade1h");
 		pm25_grade = (String) json_dust.get("pm25Grade1h");
@@ -172,27 +175,24 @@ public class Main {
 		
 		pm10_grade = gradeConvert(pm10_grade);
 		pm25_grade = gradeConvert(pm25_grade);
-		
-//		System.out.println(pm10_grade);
-//		System.out.println(pm25_grade);
-//		System.out.println(station_name);
-		
-		rst_info += "<서울 " + station_name + "의 날씨 현황>\n*미세먼지 : " + pm10_grade + "\n*초미세먼지 : "+pm25_grade+"\n";
-		rst_info += "*강수확률 : " + rain_Percent + "%";
-		
-		sendTelegram(rst_info);
 
-		if (Integer.parseInt(rain_Percent) >= 40) 
-			rst_action += "우산을 챙기세요.";
+		f.format("****%s****\n", cd.getPrtmd());
+		f.format("미세먼지 : %s\n초미세먼지 : %s\n강수확률 : %s%%\n", pm10_grade, pm25_grade, rain_percent);
+		
+		if (Integer.parseInt(rain_percent) >= 40) 
+			f.format("우산을 챙기세요\n");
 		else
-			rst_action += "우산을 안 챙겨도 됩니다.";
+			f.format("우산을 챙기지 마세요\n");
 		
 		if (mid < 4)
-			rst_action += " 마스크를 챙기세요.";
+			f.format("마스크를 챙기세요.\n");
 		else 
-			rst_action += " 마스크를 안챙겨도 됩니다.";
+			f.format("마스크를 챙기지 마세요.\n");
 		
-		sendTelegram(rst_action); 	
+		f.format("(서울 %s기준)", station_name);
+//		
+//		System.out.println(f);
+		sendTelegram(sb); 	
 		
 	}
 }
