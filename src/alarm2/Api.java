@@ -11,7 +11,7 @@ import org.json.simple.parser.JSONParser;
 public class Api {
 	final String code = "JRnXD1hyDhIXsFwFZ09bYA2u8E5YtM8V4yHGcdZEiQi46Km84sD%2BzFH3GSOxKjjWOSIKInClaYAmAHDaS00BCA%3D%3D";
 
-	public Api() {
+	public Api() {   
 
 	}
 
