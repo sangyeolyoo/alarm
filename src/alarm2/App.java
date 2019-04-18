@@ -9,7 +9,7 @@ import org.json.simple.JSONObject;
  *
  */
 
-public class Main {
+public class App {
 
 	public static StringBuffer prtFormat(Weather w, Dust d) throws Exception {
 		StringBuffer sb = new StringBuffer();
